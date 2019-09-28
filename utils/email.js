@@ -19,7 +19,7 @@ module.exports = class Email {
           user: process.env.SEND_GRID_USERNAME,
           pass: process.env.SEND_GRID_PASSWORD
         }
-      })
+      });
     }
     // 1. Create transporter
     // Service that will actually send the email
