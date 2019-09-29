@@ -21,6 +21,9 @@ const globalErrorHandler = require('./controllers/errorController');
 // adds a bunch of methods
 const app = express(); // doing this is standard
 
+// need to trust proxys to make heroku work
+app.enable('trust proxy');
+
 // SET UP PUG ENGINE
 app.set('view engine', 'pug'); // all happens behind the scenes, no import
 app.set('views', path.join(__dirname, 'views')); // just do it this way

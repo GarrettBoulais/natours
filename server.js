@@ -17,6 +17,15 @@ process.on('uncaughtException', err => {
   process.exit(1);
 });
 
+// every 24 hours heroku shuts down our app and sends SIGTERM
+process.on('SIGTERM', () => {
+  console.log('SIGTERM RECEIVED, Shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+    // sigterm causes process to exit, dont need to call it here
+  });
+});
+
 // console.log(process.env);
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
