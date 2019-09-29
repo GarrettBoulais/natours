@@ -68,12 +68,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async session => {
   const tour = session.client_reference_id; // created in getCheckoutSession
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items.amount / 100 ; // price is in cents
+  const price = session.line_items.amount / 100; // price is in cents
   await Booking.create({ tour, user, price });
 };
 
 exports.webhookCheckout = (req, res, next) => {
-  const signature = req.headers['stripe-signature'];
+  const signature = req.header['stripe-signature'];
   let event;
   try {
     // note body is in raw form when this middleware is called
