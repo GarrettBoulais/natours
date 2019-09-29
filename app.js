@@ -14,6 +14,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 const viewRouter = require('./routes/viewRoutes');
 
 const AppError = require('./utils/appError');
@@ -43,11 +44,9 @@ app.use(cors());
 app.options('*', cors());
 // app.options('/api/v1/tours/:id', cors());
 
-
 // serves a static file from the public folder
 // and not from a route
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 // Set Security HTTP headers
 app.use(helmet());
@@ -66,11 +65,18 @@ const limiter = rateLimit({
 // use limiter on all routes starting with /api
 app.use('/api', limiter);
 
+// need to do before we convert body to json (bodyParser)
+app.post(
+  '/webook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
+
 // BODY PARSER, reading data from body into req.body
 // use middleware (function that modifies incoming request data)
 // data from body is added to request
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded( { extended: true, limit: '10kb'})); // parse data from a url encoded form
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); // parse data from a url encoded form
 app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
@@ -101,7 +107,6 @@ app.use((req, res, next) => {
 });
 
 // ROUTES -------------------------------
-
 
 // mount routers
 app.use('/', viewRouter);
