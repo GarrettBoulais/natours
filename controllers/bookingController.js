@@ -39,7 +39,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       {
         name: `${tour.name} Tour`,
         description: tour.summary,
-        images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
+        images: [
+          `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`
+        ],
         amount: tour.price * 100, // expected to be in cents
         currency: 'usd',
         quantity: 1
@@ -68,12 +70,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async session => {
   const tour = session.client_reference_id; // created in getCheckoutSession
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items.amount / 100; // price is in cents
+  const price = session.display_items.amount / 100; // price is in cents
   await Booking.create({ tour, user, price });
 };
 
 exports.webhookCheckout = (req, res, next) => {
-  const signature = req.header['stripe-signature'];
+  const signature = req.headers['stripe-signature'];
   let event;
   try {
     // note body is in raw form when this middleware is called
@@ -86,8 +88,10 @@ exports.webhookCheckout = (req, res, next) => {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.complete') {
+  if (event.type === 'checkout.session.completed') {
     createBookingCheckout(event.data.object); // create session with session object
     res.status(200).json({ received: true });
   }
+
+  next();
 };
