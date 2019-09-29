@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser'); // need to get cookies from parser
 const compression = require('compression');
+const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -29,6 +30,20 @@ app.set('view engine', 'pug'); // all happens behind the scenes, no import
 app.set('views', path.join(__dirname, 'views')); // just do it this way
 
 // 1) GLOBAL MIDDLEWARES ----------------------------
+// implement CORS
+app.use(cors());
+// Access-Control-Allow-Origin
+// api.natours.com, front end on natours.com
+// app.use({
+//   origin: 'https://www.natours.com' // allow this origin to make api requests
+// })
+
+// browser sends options request when there is a pre flight phase
+// for complex requests (not get or post)
+app.options('*', cors());
+// app.options('/api/v1/tours/:id', cors());
+
+
 // serves a static file from the public folder
 // and not from a route
 app.use(express.static(path.join(__dirname, 'public')));
@@ -91,6 +106,7 @@ app.use((req, res, next) => {
 // mount routers
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter); // specify route and router
+// app.use('/api/v1/tours', cors(), tourRouter); // only allow CORS on tour API
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
