@@ -21,6 +21,8 @@ exports.setTourUserIds = (req, res, next) => {
 };
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
+  console.log('getCheckout Session');
+
   // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
 
@@ -67,6 +69,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 // });
 
 const createBookingCheckout = async session => {
+  console.log('In createBookingCheckout');
   const tour = session.client_reference_id; // created in getCheckoutSession
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.display_items.amount / 100; // price is in cents
@@ -74,6 +77,7 @@ const createBookingCheckout = async session => {
 };
 
 exports.webhookCheckout = (req, res, next) => {
+  console.log('In webhookCheckout');
   const signature = req.headers['stripe-signature'];
   let event;
   try {
