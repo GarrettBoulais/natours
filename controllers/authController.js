@@ -121,7 +121,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // grant access to next protected route
   req.user = currentUser;
-  res.locals.user = currentUser;
+  res.locals.user = currentUser; // now have access to user in all templates
   next();
 });
 
