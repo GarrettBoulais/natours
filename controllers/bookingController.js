@@ -5,7 +5,6 @@ const Booking = require('../models/bookingModel');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
-const AppError = require('../utils/appError');
 
 exports.getAllBookings = factory.getAll(Booking);
 
@@ -31,7 +30,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // success_url: `${req.protocol}://${req.get('host')}/?tour=${
     //   req.params.tourId
     // }&user=${req.user.id}&price=${tour.price}`,
-    success_url: `${req.protocol}://${req.get('host')}/my-tours`,
+    success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
@@ -71,7 +70,6 @@ const createBookingCheckout = async session => {
   const tour = session.client_reference_id; // created in getCheckoutSession
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.display_items.amount / 100; // price is in cents
-  console.log('Created Booking');
   await Booking.create({ tour, user, price });
 };
 
@@ -93,6 +91,4 @@ exports.webhookCheckout = (req, res, next) => {
     createBookingCheckout(event.data.object); // create session with session object
     res.status(200).json({ received: true });
   }
-
-  next();
 };
