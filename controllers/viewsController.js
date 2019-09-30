@@ -89,4 +89,5 @@ exports.alerts = (req, res, next) => {
     res.locals.alert =
       'Your Booking was successful! Please check for a confirmation. If your booking does not show up here immediately, please come back later';
   }
+  next();
 };
